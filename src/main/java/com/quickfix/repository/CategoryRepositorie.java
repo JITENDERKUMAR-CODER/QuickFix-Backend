@@ -1,4 +1,11 @@
 package com.quickfix.repository;
 
-public class CategoryRepositorie {
+import com.quickfix.entity.Category;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface CategoryRepositorie extends JpaRepository<Category,Long> {
+    boolean existsByName(String name);
+
 }
