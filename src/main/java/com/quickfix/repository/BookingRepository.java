@@ -1,4 +1,4 @@
 package com.quickfix.repository;
 
-public class ServiceRepositorie {
+public class BookingRepository {
 }

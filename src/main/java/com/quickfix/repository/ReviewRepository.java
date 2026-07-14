@@ -1,4 +1,4 @@
 package com.quickfix.repository;
 
-public class ReviewRepositorie {
+public class ReviewRepository {
 }

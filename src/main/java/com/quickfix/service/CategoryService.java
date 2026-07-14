@@ -3,7 +3,7 @@ package com.quickfix.service;
 import com.quickfix.dto.CategoryRequest;
 import com.quickfix.dto.CategoryResponse;
 import com.quickfix.entity.Category;
-import com.quickfix.repository.CategoryRepositorie;
+import com.quickfix.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +15,7 @@ import java.util.List;
 public class CategoryService {
 
     @Autowired
-    private CategoryRepositorie categoryRepositorie;
+    private CategoryRepository categoryRepositorie;
 
     public String createCategory(CategoryRequest request) {
 
