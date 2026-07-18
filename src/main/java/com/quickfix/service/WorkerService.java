@@ -2,9 +2,11 @@ package com.quickfix.service;
 
 import com.quickfix.dto.WorkerProfileRequest;
 import com.quickfix.dto.WorkerProfileResponse;
+import com.quickfix.entity.Category;
 import com.quickfix.entity.User;
 import com.quickfix.entity.WorkerProfile;
 import com.quickfix.entity.enums.UserRole;
+import com.quickfix.repository.CategoryRepository;
 import com.quickfix.repository.UserRepository;
 import com.quickfix.repository.WorkerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,36 +21,57 @@ public class WorkerService {
 
     @Autowired
     private WorkerRepository workerRepository;
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     @Autowired
     private UserRepository userRepository;
     public String createWorkerProfile(WorkerProfileRequest request) {
+
         Authentication authentication =
                 SecurityContextHolder.getContext().getAuthentication();
 
         String email = authentication.getName();
 
-
+        // Find Logged-in User
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() ->
                         new RuntimeException("User Not Found"));
 
+        // Check if profile already exists
         if (workerRepository.findByUser(user).isPresent()) {
             return "Worker Profile Already Exists";
         }
+
+        // Find Category
+        Category category = categoryRepository.findById(request.getCategoryId())
+                .orElseThrow(() ->
+                        new RuntimeException("Category Not Found"));
+
+        // Create Worker Profile
         WorkerProfile worker = new WorkerProfile();
+
         worker.setExperience(request.getExperience());
         worker.setBio(request.getBio());
         worker.setCity(request.getCity());
         worker.setHourlyRate(request.getHourlyRate());
+
+        worker.setCategory(category);
         worker.setUser(user);
-        user.setRole(UserRole.WORKER);
-        userRepository.save(user);
+
         worker.setVerified(false);
         worker.setRating(0.0);
+
         worker.setCreatedAt(LocalDateTime.now());
         worker.setUpdatedAt(LocalDateTime.now());
+
+        // Update User Role
+        user.setRole(UserRole.WORKER);
+        userRepository.save(user);
+
+        // Save Worker Profile
         workerRepository.save(worker);
+
         return "Worker Profile Created Successfully";
     }
     public WorkerProfileResponse getMyProfile() {
@@ -84,6 +107,7 @@ public class WorkerService {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User Not Found"));
+
 
         WorkerProfile worker = workerRepository.findByUser(user)
                 .orElseThrow(() -> new RuntimeException("Worker Profile Not Found"));

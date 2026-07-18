@@ -18,4 +18,7 @@ public class WorkerProfileRequest {
     private String city;
 
     private BigDecimal hourlyRate;
+
+    private Long categoryId;
+
 }

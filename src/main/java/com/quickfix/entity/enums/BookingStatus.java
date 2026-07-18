@@ -1,4 +1,9 @@
 package com.quickfix.entity.enums;
 
-public class BookingStatus {
+public enum BookingStatus {
+    PENDING,
+    ACCEPTED,
+    IN_PROGRESS,
+    COMPLETED,
+    CANCELLED
 }

@@ -28,6 +28,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/categories/**").permitAll()
                 .requestMatchers("/api/services/**").permitAll()
+                .requestMatchers("/api/bookings/**").permitAll()
                 .anyRequest().authenticated());
 
         http.addFilterBefore(jwtFilter,
