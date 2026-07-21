@@ -15,6 +15,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import com.quickfix.entity.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
 @org.springframework.stereotype.Service
 public class BookingService {
     @Autowired
@@ -66,10 +68,20 @@ public class BookingService {
 
     bookingRepository.save(booking);
 
-
-
-
         return "Booking Created Successfully";
 }
+    public List<Booking> getMyBookings() {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        String email = authentication.getName();
+
+        User customer = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("User Not Found"));
+
+        return bookingRepository.findByCustomer(customer);
+    }
 
 }
