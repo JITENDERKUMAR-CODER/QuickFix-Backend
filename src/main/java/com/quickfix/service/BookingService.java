@@ -83,5 +83,105 @@ public class BookingService {
 
         return bookingRepository.findByCustomer(customer);
     }
+    public List<Booking> getWorkerBookings() {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        String email = authentication.getName();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("User Not Found"));
+
+        WorkerProfile worker = workerRepository.findByUser(user)
+                .orElseThrow(() ->
+                        new RuntimeException("Worker Profile Not Found"));
+
+        return bookingRepository.findByWorker(worker);
+    }
+    public Booking acceptBooking(Long bookingId) {
+
+        WorkerProfile loggedInWorker = getLoggedInWorker();
+
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        if (!booking.getWorker().getId().equals(loggedInWorker.getId())) {
+            throw new RuntimeException("You are not authorized to accept this booking");
+        }
+
+        booking.setStatus(BookingStatus.ACCEPTED);
+
+        return bookingRepository.save(booking);
+    }
+    public Booking rejectBooking(Long bookingId) {
+
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        booking.setStatus(BookingStatus.REJECTED);
+
+        return bookingRepository.save(booking);
+    }
+    public Booking startWork(Long bookingId) {
+
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        booking.setStatus(BookingStatus.IN_PROGRESS);
+
+        return bookingRepository.save(booking);
+    }
+    public Booking completeWork(Long bookingId) {
+
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        booking.setStatus(BookingStatus.COMPLETED);
+
+        return bookingRepository.save(booking);
+    }
+    private WorkerProfile getLoggedInWorker() {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        String email = authentication.getName();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User Not Found"));
+
+        return workerRepository.findByUser(user)
+                .orElseThrow(() -> new RuntimeException("Worker Profile Not Found"));
+    }
+    public Booking cancelBooking(Long bookingId) {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        String email = authentication.getName();
+
+        User customer = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User Not Found"));
+
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        if (!booking.getCustomer().getId().equals(customer.getId())) {
+            throw new RuntimeException("You can cancel only your own booking");
+        }
+
+        if (booking.getStatus() == BookingStatus.IN_PROGRESS ||
+                booking.getStatus() == BookingStatus.COMPLETED) {
+
+            throw new RuntimeException("Booking cannot be cancelled now");
+        }
+
+        booking.setStatus(BookingStatus.CANCELLED);
+
+        return bookingRepository.save(booking);
+    }
+
 
 }
